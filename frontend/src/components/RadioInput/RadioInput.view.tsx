@@ -13,7 +13,7 @@ const RadioInput = (props: RadioInputProps) => {
 
   // TODO: something is wrong with the input's logic
   return (
-    <div className="radioInput" data-testid="radio-input-container">
+    <div className={`radioInput ${disabled ? 'line-through' : ''}`} data-testid="radio-input-container">
       <label>
         <input
           data-testid="radio-input-control"
