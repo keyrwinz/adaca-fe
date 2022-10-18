@@ -3,6 +3,10 @@ import "./CreateOrder.css";
 import RadioInput from "../../components/RadioInput";
 import { CreateOrderProps } from "./CreateOrder.props";
 
+const isEmpty = (obj: object) => {
+  return Object.values(obj).every(val => val === '')
+}
+
 const CreateOrderView = (props: CreateOrderProps) => {
   const { items, rules } = props;
 
@@ -10,7 +14,7 @@ const CreateOrderView = (props: CreateOrderProps) => {
   const [selectedItems, updateSelectedItems] = useReducer(
     (state: SelectedItems, newState: SelectedItems) => {
       // TODO: Merge selectedItems state with newState
-      return state
+      return { ...state, ...newState }
     },
     {
       0: "",
@@ -25,8 +29,10 @@ const CreateOrderView = (props: CreateOrderProps) => {
 
   const blacklist: number[] = useMemo(() => {
     // TODO: Create a blacklist based on rules and currently selected items
-    return [];
-   
+    const keys = Object.keys(selectedItems)
+    return [...keys.map(((idx) => rules[selectedItems[+idx] as any]))]
+      .flat()
+      .filter(el => el !== undefined);
   }, [rules, selectedItems]);
 
   const isDisabled = (id: string) => {
@@ -45,6 +51,9 @@ const CreateOrderView = (props: CreateOrderProps) => {
   };
 
   // TODO: If no items are available, show a "Loading..." text
+  if (!items.length) {
+    return <h3>Loading...</h3>
+  }
 
   return (
     <div className="createOrder">
@@ -54,13 +63,22 @@ const CreateOrderView = (props: CreateOrderProps) => {
             <div key={groupIndex}>
               {group.map((item) => {
                 // TODO: Should render RadioInput component
-                return <div />
+                return (
+                  <RadioInput
+                    key={item.id}
+                    label={item.value}
+                    value={item.id}
+                    onSelect={(value) => handleSelection(value, groupIndex)}
+                    checked={isSelected(item.id, groupIndex)}
+                    disabled={isDisabled(item.id)}
+                  />
+                )
               })}
               <br />
             </div>
           );
         })}
-        <input type="submit" />
+        <input type="submit" disabled={isEmpty(selectedItems)} />
       </form>
     </div>
   );
